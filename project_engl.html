@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gregor Samsa Staff File</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Concept: the firm's office floor plan. The home screen is a picture of all rooms; each room opens one page of Gregor's staff file. Warm yellow and beige, soft type, and little text until the viewer clicks. */
+:root {
+  --bg: #FBF4E2;
+  --card: #FFFBF0;
+  --ink: #4B4030;
+  --muted: #7C6F5A;
+  --rule: #EADFC6;
+  --soft: #F6E8BE;
+  --soft-2: #F0E2CC;
+  --hover: #EBD9A6;
+  --sel-bg: #8C6A1E;
+  --sel-fg: #FFFFFF;
+  --calm: #8EAA72;
+  --shock: #D58A66;
+  --shadow: 0 8px 28px rgba(120, 95, 40, .10);
+  --f: "Times New Roman", Times, "Liberation Serif", "Nimbus Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #2B261D; --card: #362F23; --ink: #F2EAD7; --muted: #BFB296; --rule: #4A4130;
+    --soft: #4B412A; --soft-2: #433A2E; --hover: #5B4E30; --sel-bg: #E3C26B; --sel-fg: #2B261D;
+    --calm: #A3C086; --shock: #E6A07F; --shadow: 0 8px 28px rgba(0, 0, 0, .25); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #2B261D; --card: #362F23; --ink: #F2EAD7; --muted: #BFB296; --rule: #4A4130;
+  --soft: #4B412A; --soft-2: #433A2E; --hover: #5B4E30; --sel-bg: #E3C26B; --sel-fg: #2B261D;
+  --calm: #A3C086; --shock: #E6A07F; --shadow: 0 8px 28px rgba(0, 0, 0, .25); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f); font-size: 19px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 56px;
+}
+.wrap { max-width: 880px; margin: 0 auto; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 800; line-height: 1.15; text-wrap: balance; }
+h2 { font-size: clamp(1.5rem, 4.2vw, 2rem); font-weight: 800; line-height: 1.2; text-wrap: balance; }
+h3 { font-size: 1.15rem; font-weight: 700; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+:focus-visible { outline: 3px solid var(--sel-bg); outline-offset: 3px; }
+button { font-family: inherit; }
+
+.btn, .chip, summary.more-sum {
+  font: inherit; font-size: 17px; font-weight: 600; color: var(--ink); background: var(--soft);
+  border: 0; border-radius: 999px; padding: 9px 18px; cursor: pointer; min-height: 42px; line-height: 1.3;
+}
+.btn:hover, .chip:hover, summary.more-sum:hover { background: var(--hover); }
+.chip[aria-pressed="true"], .btn.primary { background: var(--sel-bg); color: var(--sel-fg); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+@media (prefers-reduced-motion: no-preference) { .btn, .chip, summary.more-sum, .plan .room { transition: background .2s, fill .2s; } }
+
+details.more { margin-top: 14px; }
+details.more > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; }
+details.more > summary::-webkit-details-marker { display: none; }
+summary.more-sum::before { content: "+"; font-weight: 800; width: 1em; text-align: center; }
+details[open] > summary.more-sum::before { content: "\2212"; }
+.more-body { margin-top: 12px; padding: 16px 18px; background: var(--card); border-radius: 18px; box-shadow: var(--shadow); max-width: 62ch; }
+.more-body p + p { margin-top: 10px; }
+.more-body ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+
+.top { margin-bottom: 26px; }
+.hero { display: grid; gap: 12px; margin-bottom: 22px; }
+
+/* floor plan */
+.plan-head { display: grid; gap: 4px; margin-bottom: 14px; }
+.plan { display: block; width: 100%; height: auto; }
+.plan.narrow { display: none; }
+@media (max-width: 640px) { .plan.wide { display: none; } .plan.narrow { display: block; max-width: 420px; margin: 0 auto; } }
+.plan .shell { fill: var(--card); stroke: var(--rule); stroke-width: 4; }
+.plan .room { fill: var(--soft); stroke: var(--rule); stroke-width: 2; }
+.plan .room.b { fill: var(--soft-2); }
+.plan .door { fill: var(--card); }
+.plan .hall { stroke: var(--rule); stroke-width: 3; stroke-dasharray: 6 9; }
+.plan .num { fill: var(--card); }
+.plan text { font-family: var(--f); fill: var(--ink); }
+.plan .t { font-weight: 800; }
+.plan .hnt { fill: var(--muted); font-weight: 600; }
+.plan .ico { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+.plan .room-g { cursor: pointer; outline: none; }
+.plan .room-g:hover .room, .plan .room-g:focus-visible .room { fill: var(--hover); }
+.plan .room-g:focus-visible .room { stroke: var(--sel-bg); stroke-width: 4; }
+
+.room-nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 26px; }
+.room-head { display: grid; gap: 8px; margin-bottom: 24px; }
+.room-head p.lead { color: var(--muted); max-width: 56ch; }
+.panel { background: var(--card); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); }
+.stage { margin-top: 22px; display: grid; gap: 8px; align-content: start; min-height: 110px; }
+.stage .where { font-size: 14px; font-weight: 700; color: var(--muted); letter-spacing: .03em; }
+.stage blockquote { margin: 0; font-size: clamp(1.3rem, 3.6vw, 1.75rem); font-weight: 700; line-height: 1.3; max-width: 30ch; }
+.stage .hint-line { color: var(--muted); }
+.pager { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 34px; }
+
+.chart-wrap { overflow-x: auto; margin-top: 18px; }
+.chart-wrap svg { display: block; min-width: 520px; width: 100%; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 15px; }
+.legend span::before { content: ""; display: inline-block; width: 22px; height: 6px; border-radius: 3px; margin-right: 8px; vertical-align: middle; background: var(--c); }
+
+.reader { font-size: clamp(1.3rem, 3.6vw, 1.75rem); font-weight: 700; line-height: 1.4; max-width: 30ch; min-height: 3.6em; }
+.reader .w { display: inline-block; margin-right: .38em; opacity: .22; transition: opacity .25s, transform .25s, color .25s; }
+.reader .w.on { opacity: 1; }
+.reader.drama .w.on { transform: scale(1.05); color: var(--shock); }
+.say { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+.opt { background: var(--soft); border-radius: 20px; padding: 18px; display: grid; gap: 12px; align-content: start; }
+.opt:nth-child(2) { background: var(--soft-2); }
+.opt .bars { display: flex; align-items: end; gap: 4px; height: 40px; }
+.opt .bars i { display: block; width: 6px; border-radius: 3px; background: var(--calm); }
+.opt:nth-child(2) .bars i { background: var(--shock); }
+@media (max-width: 560px) { .say { grid-template-columns: minmax(0, 1fr); } }
+
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+.person { text-align: left; background: var(--soft); border: 0; border-radius: 20px; padding: 18px; cursor: pointer; color: var(--ink); display: grid; gap: 8px; align-content: start; min-height: 120px; }
+.person:nth-child(even) { background: var(--soft-2); }
+.person:hover { background: var(--hover); }
+.person strong { font-size: 1.15rem; font-weight: 800; }
+.person .role { font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.person .more-text { font-size: 15px; line-height: 1.5; }
+@media (max-width: 800px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .board { grid-template-columns: minmax(0, 1fr); } }
+
+.duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.duo .chip { border-radius: 20px; padding: 16px 18px; font-size: 17px; font-weight: 700; }
+.pane { margin-top: 22px; }
+.pane > .hint-line { color: var(--muted); }
+.refs { display: grid; gap: 16px; font-size: 15px; }
+.ref { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: start; }
+.ref .ph { width: 56px; height: 56px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font-weight: 800; font-size: 20px; color: var(--muted); overflow: hidden; }
+.ref .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ref p { padding-left: 1.27cm; text-indent: -1.27cm; overflow-wrap: anywhere; }
+.fine { font-size: 14px; color: var(--muted); }
+</style>
+
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="eyebrow">ENGL.376.600 · Nurmukhambet Yersain</span></div>
+
+  <div id="homeView">
+    <header class="hero">
+      <h1>The Calm Horror of The Metamorphosis</h1>
+      <div id="thesisBox"></div>
+    </header>
+    <div class="plan-head">
+      <h2>All rooms</h2>
+      <p class="muted">Click a room to enter.</p>
+    </div>
+    <div id="planBox"></div>
+  </div>
+
+  <div id="roomView" hidden></div>
+</div>
+
+<script>
+(function () {
+  /* ---------- helpers ---------- */
+  function h(tag, props) {
+    var e = document.createElement(tag), kids = Array.prototype.slice.call(arguments, 2);
+    for (var k in (props || {})) {
+      if (k === "class") e.className = props[k];
+      else if (k.indexOf("on") === 0) e.addEventListener(k.slice(2), props[k]);
+      else e.setAttribute(k, props[k]);
+    }
+    (function add(list) {
+      list.forEach(function (c) {
+        if (c == null || c === false) return;
+        if (Array.isArray(c)) return add(c);
+        e.appendChild(c.nodeType ? c : document.createTextNode(c));
+      });
+    })(kids);
+    return e;
+  }
+  function reveal(label, body) {
+    return h("details", { class: "more" }, h("summary", { class: "more-sum" }, label), h("div", { class: "more-body" }, body));
+  }
+  function chips(labels, onPick) {
+    var wrap = h("div", { class: "chips", role: "group" }), list = [];
+    labels.forEach(function (l, i) {
+      var b = h("button", { type: "button", class: "chip", "aria-pressed": "false" }, l);
+      b.addEventListener("click", function () { pick(i); });
+      wrap.appendChild(b); list.push(b);
+    });
+    function pick(i) {
+      list.forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+      onPick(i);
+    }
+    return { el: wrap, pick: pick };
+  }
+
+  /* ---------- data ---------- */
+  var record = [
+    { s: "On duty", part: "Part I", pg: "p. 4", q: "what an exhausting profession I've chosen", n: "Gregor complains about his job before he thinks about his new body. Warner (2007, p. 1026) sees an early sign of alienation. Robertson (2004, p. 51) calls it self-estrangement caused by the demands of work." },
+    { s: "Absent", part: "Part I", pg: "pp. 8–10", q: "let me permit myself to note", n: "The general manager uses formal office language. He says, \"I have always known you as a calm, sensible person\" (p. 10). Gregor is judged as an employee while he lies in bed as an insect." },
+    { s: "Pleading", part: "Part I", pg: "p. 14", q: "No one loves us drummers", n: "Gregor talks like a salesman, \"the only one who had retained his composure\" (p. 14). Weninger (1993, p. 271): Gregor is composed, so the reader feels the shock." },
+    { s: "Provider", part: "Part II", pg: "p. 22", q: "the exchange no longer felt particularly warm", n: "Gregor pays for the whole family. The family takes the money and gives little back. Weninger (1993, p. 272) describes him as the breadwinner." },
+    { s: "Tolerated", part: "Part III", pg: "p. 32", q: "only tolerance", n: "After the apple wound, duty asks the family to swallow its disgust and show him \"only tolerance\". Care becomes a duty." },
+    { s: "Disposed", part: "Part III", pg: "p. 41", q: "get rid of it", n: "Grete says \"it\". Note 1 on this page explains the German pronoun es. The worker who can no longer earn becomes a thing." },
+    { s: "Closed", part: "Part III", pg: "pp. 44–45", q: "now we can thank God", n: "Herr Samsa says this over the body (p. 44). Then he orders the lodgers out, and the family writes three letters of excuse and takes the day off (p. 45)." }
+  ];
+
+  var scenes = [
+    { p: "p. 3", t: "Gregor wakes as an insect", s: 9, q: "some sort of monstrous insect", n: "The first sentence holds the whole shock. After it, the narrator moves on to the clock, the train and the job (Murphy, 1999, pp. 189–191)." },
+    { p: "p. 7", t: "He worries about time and fog", s: 5, q: "Seven o'clock already", n: "His thoughts are about the clock and the weather. A small, ordinary worry sits inside an impossible situation." },
+    { p: "pp. 8–10", t: "The general manager at the door", s: 4, q: "let me permit myself to note", n: "The manager uses polite office language. Nobody mentions the insect yet." },
+    { p: "p. 13", t: "He opens the door with his mouth", s: 8, q: "I guess I didn't need the locksmith after all", n: "He is pleased with a practical success while the manager backs away in horror." },
+    { p: "p. 14", t: "He gives a salesman's speech", s: 7, q: "the only one who had retained his composure", n: "Gregor argues for his job in his new body. Weninger (1993, p. 271): he is composed, the reader is not." },
+    { p: "p. 17", t: "The father drives him in with a stick", s: 9, q: "The door was banged shut with the stick", n: "Gregor is wedged in the doorway and bleeding. The sentence reports it plainly." },
+    { p: "pp. 31–32", t: "The apples", s: 9, q: "only tolerance", n: "An apple stays in his back for over a month. Afterwards the family owes him only tolerance (p. 32)." },
+    { p: "pp. 41–42", t: "Grete: \"get rid of it\"", s: 8, q: "get rid of it", n: "Grete calls him \"it\" (note 1, p. 41). Gregor listens and says nothing." },
+    { p: "pp. 43–44", t: "Gregor dies; the father gives thanks", s: 9, q: "now we can thank God", n: "Gregor thinks of his family with love and decides he must disappear (p. 43). The family feels relief (p. 44)." },
+    { p: "pp. 46–47", t: "The tram ride and the new future", s: 10, q: "stretched her young body", n: "The family talks about good prospects and a husband for Grete (p. 47). The calm voice makes the ending the most shocking part." }
+  ];
+
+  var lines = [
+    { label: "Line 1 · p. 44", text: "“Well,” Herr Samsa said, “now we can thank God.”", say: "Well. Now we can thank God.", page: "Kafka, 1915/2015, p. 44" },
+    { label: "Line 2 · p. 7", text: "“Seven o’clock already, already seven and still such dense fog.”", say: "Seven o'clock already. Already seven and still such dense fog.", page: "Kafka, 1915/2015, p. 7" }
+  ];
+
+  var people = {
+    before: [
+      { n: "Gregor", r: "Provider", t: "Traveling salesman. Pays for the whole family (p. 22)." },
+      { n: "Father", r: "Dependent", t: "No work since the firm collapsed five years before. Keeps a small safe (p. 22)." },
+      { n: "Mother", r: "Dependent", t: "Not described as working. Lives on Gregor's money." },
+      { n: "Grete", r: "Dependent", t: "At home. Gregor plans to send her to the Conservatory (p. 22)." }
+    ],
+    after: [
+      { n: "Gregor", r: "Closed", t: "Cannot work. Locked in his room (p. 43) and dead by morning (p. 44)." },
+      { n: "Father", r: "Worker", t: "Works at a bank (p. 34). Keeps his porter's uniform on even at home (p. 33)." },
+      { n: "Mother", r: "Worker", t: "Sews underthings for a dress shop (p. 33)." },
+      { n: "Grete", r: "Worker", t: "Salesgirl. Studies stenography and French in the evening (p. 33)." }
+    ]
+  };
+
+  var sources = [
+    { n: "Warner (2007)", i: ["Kafka worked in insurance. Warner reads him through Weber's ideas on bureaucracy (p. 1021).", "Gregor's complaint about his job is an early sign of alienation (p. 1026).", "Using Benjamin, Warner describes a system whose procedures are unclear even to the people who carry them out (p. 1027).", "Kafka is closer to an anarchist than to a Marxist (pp. 1029–1030)."], u: "The firm as a bureaucracy that sees only a worker." },
+    { n: "Weninger (1993)", i: ["Anders on the \"anti-sensationalism of tone\" (as cited, p. 270).", "Gregor is composed, so the reader is the one who is surprised (p. 271).", "The family values him as a provider and exploits him (p. 272)."], u: "The calm tone and the family's view of Gregor." },
+    { n: "Murphy (1999)", i: ["Kafka reverses the fantastic: after the first sentence the story turns realistic (pp. 189–191).", "The shock comes from how natural the transformation seems."], u: "Why a normal tone makes the absurd feel normal." },
+    { n: "Robertson (2004)", i: ["Deadpan tone in the scene where Gregor tries to get out of bed (p. 51).", "His obsession with work shows self-estrangement caused by its demands (p. 51).", "The change may free him from his job, but only partly (p. 56)."], u: "Deadpan narration and the weak freedom at the end." },
+    { n: "Pezzini (2024)", i: ["The family changes from parasites to active people (pp. 88–89).", "An ordinary, realistic setting makes Gregor's situation stronger (p. 92)."], u: "The family after the change and the realistic setting." },
+    { n: "The story", i: ["\"some sort of monstrous insect\" (Kafka, 1915/2015, p. 3). Note 2 explains the German word Ungeziefer as a general kind of unclean animal.", "Part III closes with a tram ride and a new future (pp. 46–47)."], u: "All the quotes in this exhibition." }
+  ];
+
+  /* Photos: put a data: URI (or leave "") for each author. Empty slots show initials. */
+  var PHOTOS = { kafka: "", murphy: "", pezzini: "", robertson: "", warner: "", weninger: "" };
+  var refs = [
+    { k: "kafka", i: "K", t: "Kafka, F. (2015). The metamorphosis (S. Bernofsky, Trans.). In M. M. Anderson (Ed.), <i>The metamorphosis: Translation, backgrounds and contexts, criticism</i> (pp. 3–47). W. W. Norton. (Original work published 1915)" },
+    { k: "murphy", i: "M", t: "Murphy, R. (1999). Kafka's photograph of the imaginary: Dialogical interplay between realism and the fantastic (The Metamorphosis). In <i>Theorizing the avant-garde: Modernism, expressionism, and the problem of postmodernity</i> (pp. 180–201). Cambridge University Press. https://doi.org/10.1017/CBO9780511483189.005" },
+    { k: "pezzini", i: "P", t: "Pezzini, I. (2024). From a cockroach's point of view: The metamorphosis of perception in Kafka. <i>E|C</i>, (42), 88–102. https://mimesisjournals.com/ojs/index.php/ec/article/view/4933" },
+    { k: "robertson", i: "R", t: "Robertson, R. (2004). <i>Kafka: A very short introduction</i>. Oxford University Press." },
+    { k: "warner", i: "W", t: "Warner, M. (2007). Kafka, Weber and organization theory. <i>Human Relations, 60</i>(7), 1019–1038. https://doi.org/10.1177/0018726707081156" },
+    { k: "weninger", i: "W", t: "Weninger, R. (1993). Sounding out the silence of Gregor Samsa: Kafka's rhetoric of dys-communication. <i>Studies in 20th Century Literature, 17</i>(2), 263–286. https://doi.org/10.4148/2334-4415.1325" }
+  ];
+
+  /* ---------- rooms ---------- */
+  var roomList = [
+    { id: "record", n: 1, title: "The record", hint: ["Status changes", "in Gregor's file"], head: "A worker's status, entry by entry", lead: "The firm keeps a file on Gregor. Each stamp shows how the people around him see him at that moment.", build: buildRecord, ico: "folder" },
+    { id: "tone", n: 2, title: "Tone and shock", hint: ["A chart of", "ten scenes"], head: "The events are extreme. The narrator stays quiet.", lead: "Select a scene on the chart.", build: buildTone, ico: "chart" },
+    { id: "voice", n: 3, title: "Listen", hint: ["One sentence,", "two voices"], head: "The same sentence, said two ways", lead: "Press play and compare.", build: buildVoice, ico: "sound" },
+    { id: "work", n: 4, title: "Who works", hint: ["The family before", "and after"], head: "The family goes to work when Gregor stops", lead: "Switch the time, then open a person.", build: buildWork, ico: "people" },
+    { id: "sources", n: 5, title: "Sources", hint: ["Five scholars", "and the story"], head: "Five scholars, five pieces of the argument", lead: "Pick a source.", build: buildSources, ico: "book" },
+    { id: "close", n: 6, title: "Close of file", hint: ["Conclusion and", "references"], head: "Close of file", lead: "", build: buildClose, ico: "stamp" }
+  ];
+
+  function buildRecord() {
+    var stage = h("div", { class: "stage", "aria-live": "polite" }, h("p", { class: "hint-line" }, "No page open yet."));
+    var c = chips(record.map(function (r) { return r.s; }), function (i) {
+      var r = record[i];
+      stage.replaceChildren(h("p", { class: "where" }, r.part + " · Kafka, 1915/2015, " + r.pg), h("blockquote", null, "“" + r.q + "”"), reveal("Why it matters", h("p", null, r.n)));
+    });
+    return h("div", { class: "panel" }, c.el, stage,
+      reveal("What is this room about?", [
+        h("p", null, "The firm and the family both treat Gregor as a worker first. In this room, the stamps follow how useful he is to them."),
+        h("p", null, "While he earns money, he is \"Provider\". When he cannot work, he becomes \"Tolerated\", then \"Disposed\", then \"Closed\". This is the alienation of the worker: a person is valued only for what he does.")]));
+  }
+
+  function buildTone() {
+    var CALM = 2, W = 720, H = 300, L = 54, R = 24, T = 20, B = 40, pw = W - L - R, ph = H - T - B;
+    function X(i) { return L + i * pw / (scenes.length - 1); }
+    function Y(v) { return T + ph - v / 10 * ph; }
+    var NS = "http://www.w3.org/2000/svg";
+    function el(name, a, text) { var e = document.createElementNS(NS, name); for (var k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; return e; }
+    var svg = el("svg", { viewBox: "0 0 720 300", role: "img", "aria-label": "Line chart of ten scenes. The event line stays between 4 and 10. The narrator line stays flat at 2." });
+    [0, 5, 10].forEach(function (v) {
+      svg.appendChild(el("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: "var(--rule)", "stroke-width": 1.5 }));
+      svg.appendChild(el("text", { x: L - 12, y: Y(v) + 5, "text-anchor": "end", "font-size": 14, "font-family": "var(--f)", fill: "var(--muted)" }, v));
+    });
+    svg.appendChild(el("polyline", { points: scenes.map(function (s, i) { return X(i) + "," + Y(CALM); }).join(" "), fill: "none", stroke: "var(--calm)", "stroke-width": 5, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    svg.appendChild(el("polyline", { points: scenes.map(function (s, i) { return X(i) + "," + Y(s.s); }).join(" "), fill: "none", stroke: "var(--shock)", "stroke-width": 5, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    var gap = el("line", { stroke: "var(--ink)", "stroke-width": 1.5, "stroke-dasharray": "4 5", opacity: 0 });
+    svg.appendChild(gap);
+    var dots = [], chipApi;
+    scenes.forEach(function (s, i) {
+      svg.appendChild(el("text", { x: X(i), y: H - 12, "text-anchor": "middle", "font-size": 14, "font-family": "var(--f)", fill: "var(--muted)" }, i + 1));
+      var c = el("circle", { cx: X(i), cy: Y(s.s), r: 10, fill: "var(--card)", stroke: "var(--shock)", "stroke-width": 4, tabindex: 0, role: "button", "aria-label": "Scene " + (i + 1) + ": " + s.t, style: "cursor:pointer" });
+      c.addEventListener("click", function () { chipApi.pick(i); });
+      c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chipApi.pick(i); } });
+      svg.appendChild(c); dots.push(c);
+    });
+    var stage = h("div", { class: "stage", "aria-live": "polite" }, h("p", { class: "hint-line" }, "No scene selected yet."));
+    chipApi = chips(scenes.map(function (s, i) { return (i + 1) + " · " + s.p; }), function (i) {
+      var s = scenes[i];
+      dots.forEach(function (d, j) { d.setAttribute("r", j === i ? 14 : 10); d.setAttribute("fill", j === i ? "var(--shock)" : "var(--card)"); });
+      gap.setAttribute("x1", X(i)); gap.setAttribute("x2", X(i)); gap.setAttribute("y1", Y(s.s)); gap.setAttribute("y2", Y(CALM)); gap.setAttribute("opacity", 1);
+      stage.replaceChildren(h("p", { class: "where" }, "Kafka, 1915/2015, " + s.p), h("h3", null, (i + 1) + ". " + s.t), h("blockquote", null, "“" + s.q + "”"), reveal("What to notice", h("p", null, s.n)));
+    });
+    var legend = h("div", { class: "legend" },
+      h("span", { style: "--c: var(--shock)" }, "How extreme the event is"),
+      h("span", { style: "--c: var(--calm)" }, "How loudly the narrator reacts"));
+    var about = reveal("About the ratings", [h("p", null, "The 0 to 10 ratings are my own reading of each scene. They are not measured data."), h("p", null, "The point is the gap between the lines. The reader has to feel the shock that the narrator leaves out (Weninger, 1993, p. 271; Murphy, 1999, pp. 189–191).")]);
+    return h("div", { class: "panel" }, legend, h("div", { class: "chart-wrap" }, svg), h("div", { style: "margin-top:18px" }, chipApi.el), stage, about);
+  }
+
+  function buildVoice() {
+    var cur = 0, timers = [];
+    var reader = h("div", { class: "reader", "aria-live": "polite" });
+    var page = h("p", { class: "fine", style: "font-weight:700;margin-top:6px" });
+    var status = h("p", { class: "fine", style: "margin-top:14px", "aria-live": "polite" });
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+    function words() { return lines[cur].text.split(" "); }
+    function show() {
+      clearTimers();
+      reader.className = "reader";
+      reader.replaceChildren();
+      words().forEach(function (w) { reader.appendChild(h("span", { class: "w on" }, w)); });
+      page.textContent = lines[cur].page;
+      status.textContent = "";
+    }
+    var pick = chips(lines.map(function (l) { return l.label; }), function (i) { cur = i; if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) {} } show(); });
+    function animate(mode) {
+      clearTimers();
+      var spans = reader.querySelectorAll(".w");
+      reader.className = "reader" + (mode === "drama" ? " drama" : "");
+      Array.prototype.forEach.call(spans, function (s) { s.classList.remove("on"); });
+      var t = 250;
+      Array.prototype.forEach.call(spans, function (s, i) {
+        var last = i >= spans.length - 3;
+        t += mode === "flat" ? 330 : (last ? 900 : 560) + (/[,.]$|”$/.test(s.textContent) ? 450 : 0);
+        timers.push(setTimeout(function () { s.classList.add("on"); }, t));
+      });
+    }
+    var playId = 0;
+    function voiceReady() { return "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined"; }
+    function pickVoice() { var vs = []; try { vs = speechSynthesis.getVoices() || []; } catch (e) {} return vs.filter(function (v) { return /^en/i.test(v.lang); })[0] || null; }
+    function speakFlat(id) {
+      var u = new SpeechSynthesisUtterance(lines[cur].say); u.lang = "en-US"; u.rate = 1.05; u.pitch = 1;
+      var v = pickVoice(); if (v) u.voice = v;
+      u.onerror = function () { if (id === playId) status.textContent = "This device blocked the voice. Watch the words, and read the line aloud in class."; };
+      speechSynthesis.speak(u);
+    }
+    function speakDrama(id) {
+      var ws = words(), spans = reader.querySelectorAll(".w"), chunks = [], c = [];
+      ws.forEach(function (w, i) { c.push(i); if (/[,.;!?]["\u201d]?$/.test(w) || /\u201d$/.test(w) || c.length >= 3) { chunks.push(c); c = []; } });
+      if (c.length) chunks.push(c);
+      var k = 0, v = pickVoice();
+      function next() {
+        if (id !== playId || k >= chunks.length) return;
+        var ch = chunks[k++], last = k === chunks.length;
+        var u = new SpeechSynthesisUtterance(ch.map(function (i) { return ws[i]; }).join(" ").replace(/[\u201c\u201d]/g, "")); u.lang = "en-US";
+        u.rate = last ? 0.45 : 0.6; u.pitch = 0.3; u.volume = 1;
+        if (v) u.voice = v;
+        u.onstart = function () { if (id === playId) ch.forEach(function (i) { spans[i].classList.add("on"); }); };
+        u.onend = function () { if (id === playId) timers.push(setTimeout(next, last ? 0 : 750)); };
+        u.onerror = function () { if (id === playId) status.textContent = "This device blocked the voice. Watch the words, and read the line aloud in class."; };
+        speechSynthesis.speak(u);
+      }
+      next();
+    }
+    function play(mode) {
+      playId++; var id = playId; clearTimers();
+      var spans = reader.querySelectorAll(".w");
+      reader.className = "reader" + (mode === "drama" ? " drama" : "");
+      Array.prototype.forEach.call(spans, function (x) { x.classList.remove("on"); });
+      var ok = false;
+      try {
+        if (voiceReady()) {
+          speechSynthesis.cancel(); try { speechSynthesis.resume(); } catch (e) {}
+          var has = (speechSynthesis.getVoices() || []).length > 0;
+          if (mode === "flat") { animate("flat"); speakFlat(id); } else { if (has) speakDrama(id); else animate("drama"); }
+          ok = has;
+        }
+      } catch (e) { ok = false; }
+      if (!voiceReady() || !ok) { if (mode === "flat" || !voiceReady()) animate(mode); }
+      status.textContent = ok ? (mode === "flat" ? "Flat reading: one even voice, no pauses." : "Dramatic reading: slow, low, with long pauses.") : "No voice found on this device. Watch the words appear, and read the line aloud in class.";
+    }
+    function bars(pattern) { return h("div", { class: "bars", "aria-hidden": "true" }, pattern.map(function (v) { return h("i", { style: "height:" + v + "px" }); })); }
+    var flat = h("div", { class: "opt" }, h("h3", null, "Flat"), bars(new Array(20).fill(14)), h("button", { type: "button", class: "btn primary", onclick: function () { play("flat"); } }, "Play flat"));
+    var drama = h("div", { class: "opt" }, h("h3", null, "Dramatic"), bars([8,14,24,32,20,10,16,34,38,26,12,8,18,30,36,22,10,6,14,28]), h("button", { type: "button", class: "btn primary", onclick: function () { play("drama"); } }, "Play dramatic"));
+    show();
+    pick.el.firstChild.setAttribute("aria-pressed", "true");
+    try { if (window.speechSynthesis) speechSynthesis.getVoices(); } catch (e) {}
+    return h("div", { class: "panel" }, pick.el, h("div", { class: "stage" }, reader, page), h("div", { class: "say" }, flat, drama), status,
+      reveal("Which one fits Kafka?", [h("p", null, "The flat one. Robertson (2004, p. 51) points to a deadpan tone: the narrator reports extreme things as if they were small tasks."), h("p", null, "The dramatic voice tells you how to feel. The flat voice leaves the shock to you.")]),
+      reveal("No sound?", h("p", null, "The voice comes from your device, and some devices block it. The words still appear at two different speeds. You can also read the line aloud yourself: once with no stress, once with heavy stress.")));
+  }
+
+  function buildWork() {
+    var mode = "before";
+    var board = h("div", { class: "board" });
+    var seg = h("div", { class: "chips", role: "group" });
+    var btns = {};
+    function render() {
+      board.replaceChildren();
+      people[mode].forEach(function (p) {
+        var more = h("p", { class: "more-text", hidden: "hidden" }, p.t);
+        var t = h("button", { type: "button", class: "person", "aria-expanded": "false" }, h("strong", null, p.n), h("span", { class: "role" }, p.r), more);
+        t.addEventListener("click", function () { var open = more.hidden; more.hidden = !open; t.setAttribute("aria-expanded", open ? "true" : "false"); });
+        board.appendChild(t);
+      });
+      Object.keys(btns).forEach(function (k) { btns[k].setAttribute("aria-pressed", k === mode ? "true" : "false"); });
+    }
+    [["before", "Before the change"], ["after", "After the change"]].forEach(function (x) {
+      var b = h("button", { type: "button", class: "chip", "aria-pressed": "false" }, x[1]);
+      b.addEventListener("click", function () { mode = x[0]; render(); });
+      btns[x[0]] = b; seg.appendChild(b);
+    });
+    render();
+    return h("div", { class: "panel" }, seg, board,
+      reveal("What the sources say", h("ul", null,
+        h("li", null, "Pezzini (2024, pp. 88–89): the family changes from parasites to active people."),
+        h("li", null, "Weninger (1993, p. 272): the family values Gregor as a provider."))));
+  }
+
+  function buildSources() {
+    var stage = h("div", { class: "stage", "aria-live": "polite" }, h("p", { class: "hint-line" }, "No source open yet."));
+    var c = chips(sources.map(function (s) { return s.n; }), function (i) {
+      var s = sources[i];
+      stage.replaceChildren(h("h3", null, s.n), h("ul", { style: "margin:6px 0 0;padding-left:20px;display:grid;gap:8px;max-width:62ch" }, s.i.map(function (t) { return h("li", null, t); })), reveal("How I use it", h("p", null, s.u)));
+    });
+    return h("div", { class: "panel" }, c.el, stage);
+  }
+
+  function buildClose() {
+    var pane = h("div", { class: "pane", "aria-live": "polite" }, h("p", { class: "hint-line" }, "Choose Conclusion or References."));
+    function conclusion() {
+      return [h("p", { style: "font-size:1.25rem;font-weight:700;line-height:1.35;max-width:34ch" }, "Kafka does not need a loud style to show alienation. He tells an impossible event in a calm voice, and the calm makes it real."),
+        h("p", { style: "margin-top:12px;max-width:62ch" }, "The change may free Gregor from his job (Robertson, 2004, p. 56), but the freedom is weak. He decides that he must disappear (Kafka, 1915/2015, p. 43).")];
+    }
+    function references() {
+      var box = h("div", { class: "refs" });
+      refs.forEach(function (r) {
+        var ph = h("div", { class: "ph", "aria-hidden": "true" });
+        if (PHOTOS[r.k]) ph.appendChild(h("img", { src: PHOTOS[r.k], alt: "" })); else ph.textContent = r.i;
+        var p = h("p"); p.innerHTML = r.t;
+        box.appendChild(h("div", { class: "ref" }, ph, p));
+      });
+      return box;
+    }
+    var c = chips(["Conclusion", "References"], function (i) { var x = i === 0 ? conclusion() : [references()]; pane.replaceChildren.apply(pane, x); });
+    c.el.className = "duo";
+    return h("div", { class: "panel" }, c.el, pane);
+  }
+
+  /* ---------- floor plan ---------- */
+  var NS = "http://www.w3.org/2000/svg";
+  function s(name, a, text) { var e = document.createElementNS(NS, name); for (var k in (a || {})) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; return e; }
+  function icon(kind, x, y) {
+    var g = s("g", { class: "ico", transform: "translate(" + x + "," + y + ")" });
+    if (kind === "folder") { g.appendChild(s("path", { d: "M2 8h10l4 5h20v22H2z" })); }
+    if (kind === "chart") { g.appendChild(s("path", { d: "M2 36V4M2 36h36M8 26l9-9 8 6 11-15" })); }
+    if (kind === "sound") { g.appendChild(s("path", { d: "M4 15h8l10-9v28l-10-9H4zM28 13q6 7 0 14M33 8q11 12 0 24" })); }
+    if (kind === "people") { g.appendChild(s("circle", { cx: 12, cy: 10, r: 6 })); g.appendChild(s("path", { d: "M2 34c0-9 4-14 10-14s10 5 10 14M26 12a5 5 0 1 1 1 9M28 22c6 1 10 5 10 12" })); }
+    if (kind === "book") { g.appendChild(s("path", { d: "M3 6h14q5 0 5 5v24q0-4-5-4H3zM41 6H27q-5 0-5 5v24q0-4 5-4h14z" })); }
+    if (kind === "stamp") { g.appendChild(s("path", { d: "M10 36h24M14 28h16l-2-8h-12zM22 20v-6a6 6 0 1 0-6-6" })); }
+    return g;
+  }
+  function plan(kind) {
+    var wide = kind === "wide";
+    var svg = s("svg", { class: "plan " + kind, viewBox: wide ? "0 0 840 440" : "0 0 400 590", role: "group", "aria-label": "Floor plan with six rooms" });
+    svg.appendChild(s("rect", { class: "shell", x: 8, y: 8, width: wide ? 824 : 384, height: wide ? 424 : 574, rx: 26 }));
+    if (wide) svg.appendChild(s("line", { class: "hall", x1: 36, x2: 804, y1: 220, y2: 220 })); else svg.appendChild(s("line", { class: "hall", x1: 200, x2: 200, y1: 36, y2: 554 }));
+    roomList.forEach(function (r, i) {
+      var col = wide ? i % 3 : i % 2, row = wide ? Math.floor(i / 3) : Math.floor(i / 2);
+      var w = wide ? 244 : 168, ht = wide ? 170 : 170;
+      var x = wide ? 28 + col * 270 : (col === 0 ? 16 : 216);
+      var y = wide ? (row === 0 ? 28 : 242) : 22 + row * 186;
+      var g = s("g", { class: "room-g", tabindex: 0, role: "link", "aria-label": "Room " + r.n + ": " + r.title });
+      g.appendChild(s("rect", { class: "room" + ((i + (wide ? row : 0)) % 2 ? " b" : ""), x: x, y: y, width: w, height: ht, rx: 18 }));
+      if (wide) g.appendChild(s("rect", { class: "door", x: x + w / 2 - 26, y: row === 0 ? y + ht - 3 : y - 5, width: 52, height: 8, rx: 3 }));
+      else g.appendChild(s("rect", { class: "door", x: col === 0 ? x + w - 3 : x - 5, y: y + ht / 2 - 26, width: 8, height: 52, rx: 3 }));
+      g.appendChild(s("circle", { class: "num", cx: x + 34, cy: y + 38, r: 17 }));
+      g.appendChild(s("text", { x: x + 34, y: y + 44, "text-anchor": "middle", "font-size": 17, "font-weight": 800 }, String(r.n)));
+      g.appendChild(icon(r.ico, x + w - (wide ? 62 : 56), y + 18));
+      g.appendChild(s("text", { class: "t", x: x + 18, y: y + (wide ? 100 : 96), "font-size": wide ? 24 : 17 }, r.title));
+      r.hint.forEach(function (ln, j) { g.appendChild(s("text", { class: "hnt", x: x + 18, y: y + (wide ? 128 : 124) + j * (wide ? 22 : 20), "font-size": wide ? 16 : 14 }, ln)); });
+      g.addEventListener("click", function () { location.hash = r.id; });
+      g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); location.hash = r.id; } });
+      svg.appendChild(g);
+    });
+    return svg;
+  }
+
+  /* ---------- views ---------- */
+  var homeView = document.getElementById("homeView"), roomView = document.getElementById("roomView");
+  document.getElementById("thesisBox").appendChild(reveal("Show my central argument", h("p", null, "Kafka shows the alienation of the modern worker through calm, realistic narration that makes the absurd seem normal.")));
+  document.getElementById("planBox").append(plan("wide"), plan("narrow"));
+
+  function route() {
+    var id = (location.hash || "").replace("#", ""), idx = -1;
+    roomList.forEach(function (r, i) { if (r.id === id) idx = i; });
+    if (idx < 0) { roomView.hidden = true; homeView.hidden = false; return; }
+    var r = roomList[idx];
+    roomView.replaceChildren(
+      h("div", { class: "room-nav" }, h("button", { type: "button", class: "btn", onclick: function () { location.hash = ""; window.scrollTo(0, 0); } }, "← All rooms")),
+      h("div", { class: "room-head" }, h("span", { class: "eyebrow" }, "Room " + r.n + " · " + r.title), h("h2", null, r.head), r.lead ? h("p", { class: "lead" }, r.lead) : null),
+      r.build(),
+      h("div", { class: "pager" },
+        idx > 0 ? h("button", { type: "button", class: "btn", onclick: function () { location.hash = roomList[idx - 1].id; window.scrollTo(0, 0); } }, "← " + roomList[idx - 1].title) : h("span"),
+        idx < roomList.length - 1 ? h("button", { type: "button", class: "btn primary", onclick: function () { location.hash = roomList[idx + 1].id; window.scrollTo(0, 0); } }, roomList[idx + 1].title + " →") : h("span")));
+    homeView.hidden = true; roomView.hidden = false;
+  }
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+
+</body>
+</html>
